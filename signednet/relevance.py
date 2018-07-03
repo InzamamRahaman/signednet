@@ -4,6 +4,8 @@ import networkx as nx
 ## Adapted from https://arxiv.org/abs/1710.07236
 
 
+# Local Relevanace Indicies
+
 def relevance_over_graph(method, **kwargs):
     ebunch = kwargs.get('ebunch', None)
     G = kwargs.get('G', None)
@@ -86,3 +88,6 @@ def signed_preferential_attachment(G, ebunch=None, f=max):
     if ebunch is None:
         ebunch = nx.non_edges(G)
     return ((u, v, signed_preferential_attachment_pair(G, u, v, f=f)) for u, v in ebunch)
+
+
+# Global Relevance Indicies
