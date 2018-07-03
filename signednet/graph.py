@@ -107,7 +107,45 @@ def signed_degrees(G, n):
 
 
 def signed_modularity(G, partition):
-    pass
+    raise NotImplementedError('Modularity needs to be implemented')
+
+def adj_entry(G, i, j):
+    return G[i][j]['sign']
+
+def abs_adj_entry(G, i, j):
+    return abs(adj_entry(G, i, j))
+
+def reverse_partition(partition):
+    d = {}
+    for c, nodes in partition.items():
+        for node in nodes:
+            d[node] = c
+    return d
+
+def dirac_delta(i, j):
+    return (1 if i == j else 0)
+
+def _community_dirac_delta(G, i, j, reveresed_part):
+    ci = reveresed_part[i]
+    cj = reveresed_part[j]
+    return dirac_delta(ci, cj)
 
 def frustration(G, partition):
-    pass
+    # taken from  https://www.researchgate.net/publication/318591280
+    reversed_part = reverse_partition(partition)
+    p1 = 0
+    p2 = 0
+
+    for i in G.nodes():
+        for j in G.nodes():
+            if i != j:
+                a = abs_adj_entry(G, i, j)
+                b = adj_entry(G, i, j)
+                numer1 = a - b
+                numer2 = a + b
+                denom = 2
+                frac1 = (numer1 / denom) * _community_dirac_delta(G, i, j, reversed_part)
+                frac2 = (numer2 / denom) * (1 - _community_dirac_delta(G, i, j, reversed_part))
+                p1 += frac1
+                p2 += frac2
+    return p1 + p2
