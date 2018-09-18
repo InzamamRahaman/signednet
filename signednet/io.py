@@ -28,16 +28,18 @@ def parse_edgelist(lines, comments='#', nodetype=int, create_using=None, data=No
             rest_len = len(rest)
             if rest_len == 0:
                 raise ValueError('No sign found on line #{i}. Suggestion: Use NetworkX graph')
-            sign = int(rest[0])
-            if abs(sign) != 1:
-                raise ValueError(f'{sign} is not a valid value for edge sign - should be either -1 or 1')
-            data_dict = {'u': u, 'v': v, 'attr': {'sign': sign}}
-            if data is not None:
-                if len(rest) <= 1:
-                    raise ValueError(f'data argument was not None, but there is no extra data on line #{i}')
-                else:
-                    for j, (name, typing) in enumerate(data):
-                        data_dict['attr'][name] = typing(rest[j + 1])
+            weight = float(rest[0].strip())
+            sign = -1 if weight < 0.0 else (1 if weight > 0.0 else 0)
+            if sign != 0:
+                if abs(sign) != 1:
+                    raise ValueError(f'{sign} is not a valid value for edge sign - should be either -1 or 1')
+                data_dict = {'u': u, 'v': v, 'sign': sign, 'attr': {'sign': sign, 'sweight': weight}}
+                if data is not None:
+                    if len(rest) <= 1:
+                        raise ValueError(f'data argument was not None, but there is no extra data on line #{i}')
+                    else:
+                        for j, (name, typing) in enumerate(data):
+                            data_dict['attr'][name] = typing(rest[j + 1])
             G.add_edge(**data_dict)
     return G
 

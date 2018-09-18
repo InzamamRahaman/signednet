@@ -13,7 +13,8 @@ def signed_in_neighbors(G, n):
         nbrs = G[n]
 
     for v in nbrs:
-        sign = G[v][n]['sign']
+        #print(G[v][n]['attr'])
+        sign = G[v][n]['attr']['sign']
         if sign == 1:
             pos.append(v)
         else:
@@ -31,7 +32,7 @@ def signed_out_neighbors(G, n):
         nbrs = G[n]
 
     for v in nbrs:
-        sign = G[v][n]['sign']
+        sign = G[n][v]['attr']['sign']
         if sign == 1:
             pos.append(v)
         else:
@@ -70,7 +71,7 @@ def signed_in_degrees(G, n):
         nbrs = G[n]
 
     for v in nbrs:
-        sign = G[v][n]['sign']
+        sign = G[v][n]['attr']['sign']
         if sign == 1:
             pos += 1
         else:
@@ -88,7 +89,7 @@ def signed_out_degrees(G, n):
         nbrs = G[n]
 
     for v in nbrs:
-        sign = G[v][n]['sign']
+        sign = G[v][n]['attr']['sign']
         if sign == 1:
             pos += 1
         else:
@@ -110,7 +111,7 @@ def signed_modularity(G, partition):
     raise NotImplementedError('Modularity needs to be implemented')
 
 def adj_entry(G, i, j):
-    return G[i][j]['sign']
+    return G[i][j]['attr']['sign']
 
 def abs_adj_entry(G, i, j):
     return abs(adj_entry(G, i, j))
@@ -148,4 +149,4 @@ def frustration(G, partition):
                 frac2 = (numer2 / denom) * (1 - _community_dirac_delta(G, i, j, reversed_part))
                 p1 += frac1
                 p2 += frac2
-    return p1 + p2
+    return (p1 + p2)
