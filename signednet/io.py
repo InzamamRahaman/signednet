@@ -1,4 +1,6 @@
 import networkx as nx
+import numpy as np
+from sklearn.model_selection import KFold
 
 
 
@@ -16,6 +18,35 @@ def read_edgelist(path, comments="#", delimiter=None, create_using=None,
         G = parse_edgelist(lines, comments=comments, nodetype=nodetype,
                            create_using=create_using, data=data)
     return G
+
+
+def process_k_fold_edgelist(path, comments='#', delimiter=None, create_using=None,
+                    nodetype=None, data=None, encoding='utf-8', k=10):
+    if type(path) == str:
+        with open(path, 'rb') as fp:
+            lines = [line.decode(encoding) for line in fp]
+            lines = np.array(lines)
+            kfold = KFold(n_splits=k, shuffle=True)
+            kfold.get_n_splits(lines)
+            for train_idx, test_idx in kfold.split(lines):
+                G_train = parse_edgelist(lines[train_idx], comments, nodetype, create_using,
+                                         data, delimiter)
+                G_test = parse_edgelist(lines[test_idx], comments, nodetype, create_using,
+                                         data, delimiter)
+                yield G_train, G_test
+    else:
+        fp = path
+        lines = [line.decode(encoding) for line in fp]
+        lines = np.array(lines)
+        kfold = KFold(n_splits=k, shuffle=True)
+        kfold.get_n_splits(lines)
+        for train_idx, test_idx in kfold.split(lines):
+            G_train = parse_edgelist(lines[train_idx], comments, nodetype, create_using,
+                                     data, delimiter)
+            G_test = parse_edgelist(lines[test_idx], comments, nodetype, create_using,
+                                    data, delimiter)
+            yield G_train, G_test
+
 
 
 def parse_edgelist(lines, comments='#', nodetype=int, create_using=None, data=None, delimiter=','):
