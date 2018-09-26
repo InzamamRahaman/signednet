@@ -1,11 +1,12 @@
 import networkx as nx
 import numpy as np
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, StratifiedKFold
+import copy
 
 
 
 
-def read_edgelist(path, comments="#", delimiter=None, create_using=None,
+def read_edgelist(path, comments="#", delimiter=',', create_using=None,
                   nodetype=None, data=True, encoding='utf-8'):
     if type(path) == str:
         with open(path, 'rb') as fp:
@@ -20,32 +21,66 @@ def read_edgelist(path, comments="#", delimiter=None, create_using=None,
     return G
 
 
-def process_k_fold_edgelist(path, comments='#', delimiter=None, create_using=None,
+def process_k_fold_edgelist(path, comments='#', delimiter=',', create_using=None,
                     nodetype=None, data=None, encoding='utf-8', k=10):
     if type(path) == str:
         with open(path, 'rb') as fp:
-            lines = [line.decode(encoding) for line in fp]
+            lines = []
+            signs = []
+            for line in fp:
+                line = line.decode(encoding)
+                data = line.strip().split(delimiter)
+                sign = float(data[3])
+                if sign != 0.0:
+                    sign = -1 if sign < 0 else 1
+                    lines.append(line)
+                    signs.append(sign)
+            #lines = [line.decode(encoding) for line in fp]
             lines = np.array(lines)
-            kfold = KFold(n_splits=k, shuffle=True)
-            kfold.get_n_splits(lines)
-            for train_idx, test_idx in kfold.split(lines):
+            signs = np.array(signs)
+            kfold = StratifiedKFold(n_splits=k, shuffle=True)
+            kfold.get_n_splits(lines, signs)
+            for train_idx, test_idx in kfold.split(lines, signs):
+                create_using_copy = copy.deepcopy(create_using)
                 G_train = parse_edgelist(lines[train_idx], comments, nodetype, create_using,
                                          data, delimiter)
-                G_test = parse_edgelist(lines[test_idx], comments, nodetype, create_using,
+                G_test = parse_edgelist(lines[test_idx], comments, nodetype, create_using_copy,
                                          data, delimiter)
                 yield G_train, G_test
     else:
         fp = path
-        lines = [line.decode(encoding) for line in fp]
+        lines = []
+        signs = []
+        for line in fp:
+            line = line.decode(encoding)
+            data = line.strip().split(delimiter)
+            sign = float(data[3])
+            if sign != 0.0:
+                sign = -1 if sign < 0 else 1
+                lines.append(line)
+                signs.append(sign)
+        # lines = [line.decode(encoding) for line in fp]
         lines = np.array(lines)
-        kfold = KFold(n_splits=k, shuffle=True)
-        kfold.get_n_splits(lines)
-        for train_idx, test_idx in kfold.split(lines):
+        signs = np.array(signs)
+        kfold = StratifiedKFold(n_splits=k, shuffle=True)
+        kfold.get_n_splits(lines, signs)
+        for train_idx, test_idx in kfold.split(lines, signs):
+            create_using_copy = copy.deepcopy(create_using)
             G_train = parse_edgelist(lines[train_idx], comments, nodetype, create_using,
                                      data, delimiter)
-            G_test = parse_edgelist(lines[test_idx], comments, nodetype, create_using,
+            G_test = parse_edgelist(lines[test_idx], comments, nodetype, create_using_copy,
                                     data, delimiter)
             yield G_train, G_test
+        # lines = [line.decode(encoding) for line in fp]
+        # lines = np.array(lines)
+        # kfold = KFold(n_splits=k, shuffle=True)
+        # kfold.get_n_splits(lines)
+        # for train_idx, test_idx in kfold.split(lines):
+        #     G_train = parse_edgelist(lines[train_idx], comments, nodetype, create_using,
+        #                              data, delimiter)
+        #     G_test = parse_edgelist(lines[test_idx], comments, nodetype, create_using,
+        #                             data, delimiter)
+        #     yield G_train, G_test
 
 
 
