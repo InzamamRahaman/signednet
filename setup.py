@@ -8,7 +8,7 @@ long_description = """
 
 setup(
     name='signednet',
-    version='0.1dev',
+    version='0.11dev',
     packages=['signednet'],
     license='MIT',
     long_description=long_description

@@ -7,7 +7,7 @@ import copy
 
 
 def read_edgelist(path, comments="#", delimiter=',', create_using=None,
-                  nodetype=None, data=True, encoding='utf-8'):
+                  nodetype=None, data=None, encoding='utf-8'):
     if type(path) == str:
         with open(path, 'rb') as fp:
             lines = [line.decode(encoding) for line in fp]
@@ -29,8 +29,8 @@ def process_k_fold_edgelist(path, comments='#', delimiter=',', create_using=None
             signs = []
             for line in fp:
                 line = line.decode(encoding)
-                data = line.strip().split(delimiter)
-                sign = float(data[3])
+                d = line.strip().split(delimiter)
+                sign = float(d[2])
                 if sign != 0.0:
                     sign = -1 if sign < 0 else 1
                     lines.append(line)
@@ -53,8 +53,8 @@ def process_k_fold_edgelist(path, comments='#', delimiter=',', create_using=None
         signs = []
         for line in fp:
             line = line.decode(encoding)
-            data = line.strip().split(delimiter)
-            sign = float(data[3])
+            d = line.strip().split(delimiter)
+            sign = float(data[2])
             if sign != 0.0:
                 sign = -1 if sign < 0 else 1
                 lines.append(line)
@@ -66,8 +66,10 @@ def process_k_fold_edgelist(path, comments='#', delimiter=',', create_using=None
         kfold.get_n_splits(lines, signs)
         for train_idx, test_idx in kfold.split(lines, signs):
             create_using_copy = copy.deepcopy(create_using)
+            #print('D',data)
             G_train = parse_edgelist(lines[train_idx], comments, nodetype, create_using,
                                      data, delimiter)
+            #print('E',data)
             G_test = parse_edgelist(lines[test_idx], comments, nodetype, create_using_copy,
                                     data, delimiter)
             yield G_train, G_test
@@ -100,6 +102,7 @@ def parse_edgelist(lines, comments='#', nodetype=int, create_using=None, data=No
                 if abs(sign) != 1:
                     raise ValueError(f'{sign} is not a valid value for edge sign - should be either -1 or 1')
                 data_dict = {'u': u, 'v': v, 'sign': sign, 'attr': {'sign': sign, 'sweight': weight}}
+                #print(data)
                 if data is not None:
                     if len(rest) <= 1:
                         raise ValueError(f'data argument was not None, but there is no extra data on line #{i}')

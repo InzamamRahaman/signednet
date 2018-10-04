@@ -89,7 +89,7 @@ def signed_out_degrees(G, n):
         nbrs = G[n]
 
     for v in nbrs:
-        sign = G[v][n]['attr']['sign']
+        sign = G[n][v]['attr']['sign']
         if sign == 1:
             pos += 1
         else:
