@@ -16,8 +16,10 @@ def from_adj_matrix(adj_matrix, start_with=1, create_using=nx.DiGraph()):
                     sign = -1
                 elif score > 0.0:
                     sign = 1 
+                u = start_with + i
+                v = start_with + j
                 data_dict = {'sign': sign, 'attr':{'sign': sign, 'sweight':score}}
-            G.add_edge(i, j, **data_dict)
+            G.add_edge(u, v, **data_dict)
     return G
 
 
