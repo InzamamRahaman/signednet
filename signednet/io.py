@@ -5,6 +5,22 @@ import copy
 
 
 
+def from_adj_matrix(adj_matrix, start_with=1, create_using=nx.DiGraph()):
+    G = create_using
+    n = len(adj_matrix) + start_with
+    for i in range(n):
+        for j in range(n):
+            if i >= start_with and j >= start_with:
+                score = adj_matrix[i][j] 
+                if score < 0.0:
+                    sign = -1
+                elif score > 0.0:
+                    sign = 1 
+                data_dict = {'sign': sign, 'attr':{'sign': sign, 'sweight':score}}
+            G.add_edge(i, j, **data_dict)
+    return G
+
+
 
 def read_edgelist(path, comments="#", delimiter=',', create_using=None,
                   nodetype=None, data=None, encoding='utf-8'):
