@@ -4,6 +4,25 @@ from sklearn.model_selection import KFold, StratifiedKFold
 import copy
 
 
+def write_edgelist(G, path, delimiter=',', write_extra=False):
+    lines = []
+    fp = path 
+    if str(path) == 'str':
+        fp = open(path, 'w')
+    for (u, v, d) in G.edges(data=True):
+        s = d['attr']['sign']
+        arr = [u, v, s]
+        if write_extra:
+            attr = d['attr']
+            for k, v in attr.items():
+                if k != 'sign':
+                    arr.append(v)
+        line = delimiter.join()
+        lines.append(line)
+    fp.write('\n'.join(lines))
+    fp.close()
+
+
 
 def from_adj_matrix(adj_matrix, start_with=1, create_using=nx.DiGraph()):
     G = create_using
