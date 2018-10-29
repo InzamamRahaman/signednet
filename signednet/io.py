@@ -2,12 +2,13 @@ import networkx as nx
 import numpy as np
 from sklearn.model_selection import KFold, StratifiedKFold
 import copy
+import random
 
 
-def write_edgelist(G, path, delimiter=',', write_extra=False):
+def write_edgelist(G, path, delimiter=',', write_extra=False, shuffle=True):
     lines = []
     fp = path 
-    if str(path) == 'str':
+    if type(path) == type('str'):
         fp = open(path, 'w')
     for (u, v, d) in G.edges(data=True):
         s = d['attr']['sign']
@@ -17,28 +18,40 @@ def write_edgelist(G, path, delimiter=',', write_extra=False):
             for k, v in attr.items():
                 if k != 'sign':
                     arr.append(v)
-        line = delimiter.join()
+        arr = map(str, arr)
+        # arr = np.array(list(map(str, arr)))
+        # per_idx = np.arange(0, len(arr))
+        # per_idx = np.random.permutation(per_idx)
+        # print(len(arr))
+        # print(arr.shape)
+        # arr = arr[per_idx, :]
+        line = delimiter.join(arr)
         lines.append(line)
+    if shuffle:
+        lines = np.array(lines)
+        lines = np.random.permutation(lines)
     fp.write('\n'.join(lines))
     fp.close()
 
 
 
-def from_adj_matrix(adj_matrix, start_with=1, create_using=nx.DiGraph()):
+def from_adj_matrix(adj_matrix, start_with=1, 
+    create_using=nx.DiGraph(), ignore_neutrals=False):
     G = create_using
-    n = len(adj_matrix) + start_with
+    n = len(adj_matrix) #+ start_with
     for i in range(n):
         for j in range(n):
-            if i >= start_with and j >= start_with:
-                score = adj_matrix[i][j] 
-                if score < 0.0:
-                    sign = -1
-                elif score > 0.0:
-                    sign = 1 
+            score = adj_matrix[i][j] 
+            sign = 0
+            if score < 0.0:
+                sign = -1
+            elif score > 0.0:
+                sign = 1 
+            if (not ignore_neutrals and sign != 0) or ignore_neutrals:
                 u = start_with + i
                 v = start_with + j
                 data_dict = {'sign': sign, 'attr':{'sign': sign, 'sweight':score}}
-            G.add_edge(u, v, **data_dict)
+                G.add_edge(u, v, **data_dict)
     return G
 
 

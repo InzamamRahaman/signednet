@@ -106,6 +106,24 @@ def signed_degrees(G, n):
         neg += out_neg
     return pos, neg
 
+def neg_edges(G, data=False):
+    for u, v, d in G.edges(data=True):
+        if d['sign'] == -1:
+            if data:
+                yield u, v, d 
+            else:
+                yield u, v
+
+def pos_edges(G, data=False):
+    for u, v, d in G.edges(data=True):
+        if d['sign'] == -1:
+            if data:
+                yield u, v, d 
+            else:
+                yield u, v
+
+
+
 
 def signed_modularity(G, partition):
     raise NotImplementedError('Modularity needs to be implemented')
