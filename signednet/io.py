@@ -151,7 +151,7 @@ def parse_edgelist(lines, comments='#', nodetype=int, create_using=None, data=No
             if sign != 0:
                 if abs(sign) != 1:
                     raise ValueError(f'{sign} is not a valid value for edge sign - should be either -1 or 1')
-                data_dict = {'u': u, 'v': v, 'sign': sign, 'attr': {'sign': sign, 'sweight': weight}}
+                data_dict = {'u_of_edge': u, 'v_of_edge': v, 'sign': sign, 'attr': {'sign': sign, 'sweight': weight}}
                 #print(data)
                 if data is not None:
                     if len(rest) <= 1:
